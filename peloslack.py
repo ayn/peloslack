@@ -16,7 +16,6 @@ slack_client = WebClient(token=slack_bot_token)
 
 def set_slack_status(workout):
     global status_updated
-    global conn
 
     if status_updated:
         return
