@@ -15,7 +15,7 @@ tl = Timeloop()
 slack_client = WebClient(token=slack_bot_token)
 
 def set_slack_status(workout):
-    global status_updated
+    global last_start_time
 
     start_time = str(workout["start_time"]) # e.g.: 1615617614
 
