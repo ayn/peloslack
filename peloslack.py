@@ -27,8 +27,6 @@ def set_slack_status(workout):
     workout_title = str(workout["ride"]["title"])
     instructor = str(workout["instructor_name"])
 
-    status_updated = True
-
     status_emoji = ":man-biking:"
     status_message = "Riding the Peloton"
 
