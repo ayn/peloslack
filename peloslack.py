@@ -10,18 +10,19 @@ username = os.environ['PTON_USERNAME']
 password = os.environ['PTON_PASSWORD']
 slack_bot_token = os.environ['SLACK_BOT_TOKEN']
 conn = pylotoncycle.PylotonCycle(username, password)
-status_updated = False
+last_start_time = "1615617614"
 tl = Timeloop()
 slack_client = WebClient(token=slack_bot_token)
 
 def set_slack_status(workout):
     global status_updated
 
-    if status_updated:
+    start_time = str(workout["start_time"]) # e.g.: 1615617614
+
+    if last_start_time == start_time:
         return
 
-    # print(workout)
-    start_time = str(workout["start_time"]) # e.g.: 1615617614
+    last_start_time = start_time
     end_time = str(workout["end_time"]) # e.g.: 1615618814
     workout_title = str(workout["ride"]["title"])
     instructor = str(workout["instructor_name"])
@@ -43,6 +44,8 @@ def set_slack_status(workout):
     status_message += " w/ "
     status_message += instructor
 
+    print(f"Setting profile with message={status_message}, emoji={status_emoji}, exp={end_time}")
+
     slack_client.api_call(
         api_method = 'users.profile.set',
         json = {
@@ -57,17 +60,15 @@ def set_slack_status(workout):
 @tl.job(interval=timedelta(seconds=30))
 def mainloop():
     workout = conn.GetRecentWorkouts(1)[0]
-    state = workout["status"]
+    status = workout["status"]
 
-    if (workout["status"] == 'COMPLETE'):
+    if (status == 'COMPLETE'):
         print("Status: Complete")
-        print(workout)
-        status_updated = False
-    elif (workout["status"] == 'IN_PROGRESS'):
+    elif (status == 'IN_PROGRESS'):
         print("Status: In Progress")
         set_slack_status(workout)
     else:
-        print("Unknown")
+        print(f"Status: {status}")
 
 if __name__ == "__main__":
     tl.start(block=True)
