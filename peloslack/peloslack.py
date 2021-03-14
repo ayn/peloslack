@@ -17,7 +17,6 @@ password = os.environ['PTON_PASSWORD']
 slack_bot_token = os.environ['SLACK_BOT_TOKEN']
 conn = pylotoncycle.PylotonCycle(username, password)
 last_start_time = "1615617614"
-tl = Timeloop()
 slack_client = WebClient(token=slack_bot_token)
 
 
@@ -92,10 +91,11 @@ def poll_and_set_slack():
         print(f"Status: {status}")
 
 
-@tl.job(interval=timedelta(seconds=30))
-def mainloop():
-    poll_and_set_slack()
-
-
 if __name__ == "__main__":
+    tl = Timeloop()
+
+    @tl.job(interval=timedelta(seconds=30))
+    def mainloop():
+        poll_and_set_slack()
+
     tl.start(block=True)

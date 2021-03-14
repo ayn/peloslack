@@ -3,7 +3,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from rq import Queue
 from worker import conn
 
-from peloslack.peloslack import mainloop
+from peloslack.peloslack import poll_and_set_slack
 
 POLL_INTERVAL_SECONDS = 30
 
@@ -15,7 +15,7 @@ sched = BlockingScheduler()
 @sched.scheduled_job('interval', seconds=POLL_INTERVAL_SECONDS)
 def timed_job():
     print('This job is run every 30s.'.format(POLL_INTERVAL_SECONDS))
-    result = q.enqueue(poll_slack)
+    result = q.enqueue(poll_and_set_slack)
     print(result)
 
 
