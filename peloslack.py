@@ -1,10 +1,13 @@
-import pylotoncycle
+
+from datetime import datetime, timedelta
 import os
-from timeloop import Timeloop
-from datetime import datetime
-from datetime import timedelta
+
+
+import pylotoncycle
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
+from timeloop import Timeloop
+
 
 username = os.environ['PTON_USERNAME']
 password = os.environ['PTON_PASSWORD']
@@ -14,28 +17,45 @@ last_start_time = "1615617614"
 tl = Timeloop()
 slack_client = WebClient(token=slack_bot_token)
 
+
+WORKOUT_TO_EMOJI_AND_STATUS = {
+    'yoga': {
+        'emoji': ':person_in_lotus_position:',
+        'message': 'Namaste',
+    },
+    'stretching': {
+        'emoji': ':person_in_lotus_position:',
+        'message': 'Namaste',
+    },
+    'running': {
+        'emoji': ':man-running:',
+        'status_message': 'Out for a run',
+    }
+}
+
+
 def set_slack_status(workout):
     global last_start_time
 
-    start_time = str(workout["start_time"]) # e.g.: 1615617614
+    start_time = str(workout["start_time"])  # e.g.: 1615617614
 
     if last_start_time == start_time:
         return
 
     last_start_time = start_time
-    end_time = str(workout["end_time"]) # e.g.: 1615618814
+    end_time = str(workout["end_time"])  # e.g.: 1615618814
     workout_title = str(workout["ride"]["title"])
     instructor = str(workout["instructor_name"])
 
-    status_emoji = ":man-biking:"
-    status_message = "Riding the Peloton"
-
-    if (workout["fitness_discipline"] == "yoga" or workout["fitness_discipline"] == "stretching"):
-        status_emoji = ":person_in_lotus_position:"
-        status_message = "Namaste"
-    elif (workout["fitness_discipline"] == "running"):
-        status_emoji = ":man-running:"
-        status_message = "Out for a run"
+    try:
+        status = WORKOUT_TO_EMOJI_AND_STATUS[workout["fitness_discipline"]]
+    except KeyError:
+        status = {
+            'emoji': ':man-biking:',
+            'status_message': 'Riding the Peloton',
+        }
+    status_emoji = status['emoji']
+    status_message = status['message']
 
     status_message += ": "
     status_message += workout_title
@@ -55,6 +75,7 @@ def set_slack_status(workout):
         }
     )
 
+
 @tl.job(interval=timedelta(seconds=30))
 def mainloop():
     workout = conn.GetRecentWorkouts(1)[0]
@@ -67,6 +88,7 @@ def mainloop():
         set_slack_status(workout)
     else:
         print(f"Status: {status}")
+
 
 if __name__ == "__main__":
     tl.start(block=True)
