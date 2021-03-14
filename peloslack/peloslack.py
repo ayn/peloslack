@@ -8,6 +8,9 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from timeloop import Timeloop
 
+from dotenv import load_dotenv
+load_dotenv()
+
 
 username = os.environ['PTON_USERNAME']
 password = os.environ['PTON_PASSWORD']
@@ -76,8 +79,7 @@ def set_slack_status(workout):
     )
 
 
-@tl.job(interval=timedelta(seconds=30))
-def mainloop():
+def poll_and_set_slack():
     workout = conn.GetRecentWorkouts(1)[0]
     status = workout["status"]
 
@@ -88,6 +90,11 @@ def mainloop():
         set_slack_status(workout)
     else:
         print(f"Status: {status}")
+
+
+@tl.job(interval=timedelta(seconds=30))
+def mainloop():
+    poll_and_set_slack()
 
 
 if __name__ == "__main__":

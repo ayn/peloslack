@@ -15,7 +15,7 @@ sched = BlockingScheduler()
 @sched.scheduled_job('interval', seconds=POLL_INTERVAL_SECONDS)
 def timed_job():
     print('This job is run every 30s.'.format(POLL_INTERVAL_SECONDS))
-    result = q.enqueue(mainloop)
+    result = q.enqueue(poll_slack)
     print(result)
 
 
