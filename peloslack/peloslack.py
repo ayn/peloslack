@@ -29,7 +29,7 @@ WORKOUT_TO_EMOJI_AND_STATUS = {
     },
     'running': {
         'emoji': ':man-running:',
-        'status_message': 'Out for a run',
+        'message': 'Out for a run',
     }
 }
 
@@ -52,7 +52,7 @@ def set_slack_status(workout):
     except KeyError:
         status = {
             'emoji': ':man-biking:',
-            'status_message': 'Riding the Peloton',
+            'message': 'Riding the Peloton',
         }
     status_emoji = status['emoji']
     status_message = status['message']
