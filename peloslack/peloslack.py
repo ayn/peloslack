@@ -14,6 +14,7 @@ password = os.environ['PTON_PASSWORD']
 slack_bot_token = os.environ['SLACK_BOT_TOKEN']
 conn = pylotoncycle.PylotonCycle(username, password)
 last_start_time = "1615617614"
+last_end_time = "1615617614"
 tl = Timeloop()
 slack_client = WebClient(token=slack_bot_token)
 
@@ -37,13 +38,12 @@ WORKOUT_TO_EMOJI_AND_STATUS = {
 def set_slack_status(workout):
     global last_start_time
 
-    start_time = str(workout["start_time"])  # e.g.: 1615617614
+    start_time = str(workout["start_time"])
 
     if last_start_time == start_time:
         return
 
     last_start_time = start_time
-    end_time = str(workout["end_time"])  # e.g.: 1615618814
     workout_title = str(workout["ride"]["title"])
     instructor = str(workout["instructor_name"])
 
@@ -62,15 +62,37 @@ def set_slack_status(workout):
     status_message += " w/ "
     status_message += instructor
 
-    print(f"Setting profile with message={status_message}, emoji={status_emoji}, exp={end_time}")
+    print(f"Setting profile with message={status_message}, emoji={status_emoji}")
 
     slack_client.api_call(
         api_method = 'users.profile.set',
         json = {
             "profile": {
                 "status_text": status_message,
-                "status_emoji": status_emoji,
-                "status_expiration": end_time
+                "status_emoji": status_emoji
+            }
+        }
+    )
+
+
+def clear_slack_status(workout):
+    global last_end_time
+
+    end_time = str(workout["end_time"])
+
+    if last_end_time == end_time:
+        return
+
+    last_end_time = end_time
+
+    print("Clearing Slack status")
+
+    slack_client.api_call(
+        api_method = 'users.profile.set',
+        json = {
+            "profile": {
+                "status_text": "",
+                "status_emoji": ""
             }
         }
     )
@@ -83,6 +105,7 @@ def mainloop():
 
     if (status == 'COMPLETE'):
         print("Status: Complete")
+        clear_slack_status(workout)
     elif (status == 'IN_PROGRESS'):
         print("Status: In Progress")
         set_slack_status(workout)
