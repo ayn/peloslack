@@ -98,19 +98,18 @@ def clear_slack_status(workout):
     )
 
 
-@tl.job(interval=timedelta(seconds=30))
+@tl.job(interval=timedelta(seconds=60))
 def mainloop():
     workout = conn.GetRecentWorkouts(1)[0]
     status = workout["status"]
+    now = datetime.now()
+    now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+    print(f"Time: {now_str}. Status: {status}")
 
     if (status == 'COMPLETE'):
-        print("Status: Complete")
         clear_slack_status(workout)
     elif (status == 'IN_PROGRESS'):
-        print("Status: In Progress")
         set_slack_status(workout)
-    else:
-        print(f"Status: {status}")
 
 
 if __name__ == "__main__":
