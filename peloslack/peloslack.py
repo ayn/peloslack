@@ -100,16 +100,19 @@ def clear_slack_status(workout):
 
 @tl.job(interval=timedelta(seconds=60))
 def mainloop():
-    workout = conn.GetRecentWorkouts(1)[0]
-    status = workout["status"]
-    now = datetime.now()
-    now_str = now.strftime("%Y-%m-%d %H:%M:%S")
-    print(f"Time: {now_str}. Status: {status}")
+    try:
+        workout = conn.GetRecentWorkouts(1)[0]
+        status = workout["status"]
+        now = datetime.now()
+        now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+        print(f"Time: {now_str}. Status: {status}")
 
-    if (status == 'COMPLETE'):
-        clear_slack_status(workout)
-    elif (status == 'IN_PROGRESS'):
-        set_slack_status(workout)
+        if (status == 'COMPLETE'):
+            clear_slack_status(workout)
+        elif (status == 'IN_PROGRESS'):
+            set_slack_status(workout)
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":
