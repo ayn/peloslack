@@ -25,6 +25,14 @@ WORKOUT_TO_EMOJI_AND_STATUS = {
         'message': 'Namaste',
     },
     'stretching': {
+        'emoji': ':man-gesturing-ok:',
+        'message': 'Stretch',
+    },
+    'meditation': {
+        'emoji': ':person_in_lotus_position:',
+        'message': 'Meditating',
+    },
+    'stretching': {
         'emoji': ':person_in_lotus_position:',
         'message': 'Namaste',
     },
